@@ -54,13 +54,14 @@ Sin login por ahora (cualquiera con la URL puede entrar).
 
 ## Endpoints ESP32
 
-Header: `X-Device-Key: dev_xxxx`
-
 | Método | Ruta | Descripción |
 |--------|------|-------------|
+| GET | `/v1/status` | **Despertador Render** — responde `{ "status": "ok" }`. Llama esto primero. |
 | GET | `/health` | Estado del servicio |
 | POST | `/v1/check` | Consultar tarjeta `{ "uid": "A1B2C3D4" }` |
 | POST | `/v1/charge` | Cobrar `{ "uid": "A1B2C3D4", "amount": 5 }` |
+
+Header en check/charge: `X-Device-Key: dev_xxxx`
 
 ## Endpoints gestión (sin login)
 

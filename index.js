@@ -58,7 +58,7 @@ async function authDevice(req, res, next) {
   }
 }
 
-// ── Salud ──
+// ── Salud y despertador Render ──
 
 app.get("/health", (_req, res) => {
   res.json({
@@ -68,6 +68,11 @@ app.get("/health", (_req, res) => {
     version: "2.0.0",
     timestamp: new Date().toISOString(),
   });
+});
+
+/** Despertador: Render free duerme ~15 min sin tráfico. Llama esto antes de check/charge. */
+app.get("/v1/status", (_req, res) => {
+  res.json({ success: true, status: "ok" });
 });
 
 // ── API ESP32 ──
@@ -477,7 +482,7 @@ app.get("/api-info", (_req, res) => {
     message: "API Sistema Lavado RFID",
     endpoints: {
       health: "GET /health",
-      esp32: ["POST /v1/check", "POST /v1/charge"],
+      esp32: ["GET /v1/status", "POST /v1/check", "POST /v1/charge"],
       admin: [
         "GET /api/stats",
         "GET /api/users",
