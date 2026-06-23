@@ -189,32 +189,131 @@
         <!-- Guía API -->
         <section id="panel-api" class="panel">
           <div class="card">
-            <div class="card-header"><h2>Documentación API — ESP32</h2></div>
+            <div class="card-header">
+              <h2>Guía para principiantes — ESP32 + API</h2>
+              <button class="btn btn-sm btn-secondary" id="btn-test-wake">Probar despertador</button>
+            </div>
             <div class="card-body">
-              <p style="color:var(--muted);margin-bottom:1.5rem">Base URL: <strong class="mono" data-base>{{BASE}}</strong></p>
-
-              <div class="api-endpoint"><h3><span class="method method-get">GET</span>/health</h3><p>Verifica que el servicio esté activo.</p></div>
-
-              <div class="api-endpoint">
-                <h3><span class="method method-post">POST</span>/v1/check</h3>
-                <p>Consulta tarjeta RFID antes del lavado. Header: <code>X-Device-Key</code></p>
-                <div class="code-block" data-base>{ "uid": "A1B2C3D4" }</div>
+              <div class="guide-intro">
+                <h3>¿Qué es esto?</h3>
+                <p>Tu ESP32 se conecta por WiFi a esta URL y habla con el servidor para <strong>saber si una tarjeta RFID tiene saldo</strong> y <strong>cobrar el lavado</strong>. No necesitas saber programar servidores: solo copia los ejemplos en tu código Arduino.</p>
+                <p style="margin-top:0.5rem">Tu URL base: <strong class="mono" data-base>{{BASE}}</strong></p>
               </div>
 
-              <div class="api-endpoint">
-                <h3><span class="method method-post">POST</span>/v1/charge</h3>
-                <p>Cobra el lavado al cliente. Header: <code>X-Device-Key</code></p>
-                <div class="code-block" data-base>{ "uid": "A1B2C3D4", "amount": 5 }</div>
+              <div class="guide-tip">
+                <strong>⚠ Render se duerme:</strong> En plan gratis, si nadie usa la API ~15 minutos, el servidor entra en reposo. La primera petición puede tardar <strong>30–60 segundos</strong>. Solución: llama primero a <code>GET /v1/status</code> para despertarlo, espera la respuesta, y luego haz check/charge.
               </div>
 
-              <div class="api-endpoint"><h3><span class="method method-get">GET</span>/api/users</h3><p>Lista clientes.</p></div>
-              <div class="api-endpoint"><h3><span class="method method-post">POST</span>/api/users</h3><p>Crea cliente con placa, teléfono y notas.</p></div>
-              <div class="api-endpoint"><h3><span class="method method-patch">PATCH</span>/api/users/:id</h3><p>Edita datos del cliente.</p></div>
-              <div class="api-endpoint"><h3><span class="method method-post">POST</span>/api/users/:id/recharge</h3><p>Recarga saldo.</p></div>
+              <div class="guide-step">
+                <h3><span class="guide-step-num">0</span> Despertar el servidor (importante)</h3>
+                <p>Antes de cualquier operación, pregunta si el servidor está listo. No necesitas API Key ni tarjeta. Solo quieres que responda <code>status: ok</code>.</p>
+                <div class="guide-label">Petición</div>
+                <div class="api-endpoint" style="margin-bottom:0.5rem">
+                  <h3><span class="method method-get">GET</span>/v1/status</h3>
+                </div>
+                <div class="guide-label">Respuesta esperada</div>
+                <div class="code-block">{ "success": true, "status": "ok" }</div>
+                <div class="guide-label">Probar en navegador</div>
+                <div class="code-block" data-base>{{BASE}}/v1/status</div>
+                <div class="guide-test-row">
+                  <span class="guide-test-result" id="wake-test-result">Pulsa "Probar despertador" arriba</span>
+                </div>
+              </div>
 
-              <h3 style="margin:1.5rem 0 0.75rem">Código ESP32</h3>
-              <div class="code-block" data-base>const char* API_BASE = "{{BASE}}";
-const char* DEVICE_KEY = "dev_tu_api_key";</div>
+              <div class="guide-step">
+                <h3><span class="guide-step-num">1</span> Obtén tu API Key</h3>
+                <p>Cada ESP32 necesita una clave única para identificarse:</p>
+                <ul>
+                  <li>Ve a la pestaña <strong>Dispositivos</strong> en este panel</li>
+                  <li>Copia la <strong>API Key</strong> (empieza con <code>dev_</code>)</li>
+                  <li>Pégala en tu código como <code>DEVICE_KEY</code></li>
+                </ul>
+              </div>
+
+              <div class="guide-step">
+                <h3><span class="guide-step-num">2</span> Consultar tarjeta (antes de lavar)</h3>
+                <p>El ESP32 lee la tarjeta y pregunta: ¿este cliente existe? ¿tiene saldo?</p>
+                <div class="api-endpoint">
+                  <h3><span class="method method-post">POST</span>/v1/check</h3>
+                  <p>Header obligatorio: <code>X-Device-Key: dev_tu_api_key</code></p>
+                </div>
+                <div class="guide-label">Cuerpo JSON (body)</div>
+                <div class="code-block">{
+  "uid": "A1B2C3D4"
+}</div>
+                <div class="guide-label">Si todo bien, recibes</div>
+                <div class="code-block">{
+  "success": true,
+  "found": true,
+  "name": "Carlos",
+  "balance": 20,
+  "canUse": true
+}</div>
+                <p>Si <code>canUse</code> es <code>false</code>, no tiene saldo suficiente → no abras el lavado.</p>
+              </div>
+
+              <div class="guide-step">
+                <h3><span class="guide-step-num">3</span> Cobrar el lavado</h3>
+                <p>Si el cliente puede usar el servicio, cobras el monto configurado en <strong>Configuración</strong>.</p>
+                <div class="api-endpoint">
+                  <h3><span class="method method-post">POST</span>/v1/charge</h3>
+                  <p>Header obligatorio: <code>X-Device-Key: dev_tu_api_key</code></p>
+                </div>
+                <div class="guide-label">Cuerpo JSON (body)</div>
+                <div class="code-block">{
+  "uid": "A1B2C3D4",
+  "amount": 5,
+  "description": "Lavado automatico"
+}</div>
+                <div class="guide-label">Respuesta exitosa</div>
+                <div class="code-block">{
+  "success": true,
+  "charged": 5,
+  "balance": 15
+}</div>
+              </div>
+
+              <div class="guide-step">
+                <h3><span class="guide-step-num">4</span> Orden recomendado en tu ESP32</h3>
+                <ol style="margin-left:1.25rem;color:var(--muted);font-size:0.875rem">
+                  <li style="margin-bottom:0.4rem">Conectar WiFi</li>
+                  <li style="margin-bottom:0.4rem"><strong>GET /v1/status</strong> → esperar respuesta (despertar Render)</li>
+                  <li style="margin-bottom:0.4rem">Leer tarjeta RFID → obtener UID en mayúsculas (ej. <code>A1B2C3D4</code>)</li>
+                  <li style="margin-bottom:0.4rem"><strong>POST /v1/check</strong> → verificar saldo</li>
+                  <li style="margin-bottom:0.4rem">Si <code>canUse == true</code> → <strong>POST /v1/charge</strong></li>
+                  <li>Activar relé / bomba de agua</li>
+                </ol>
+              </div>
+
+              <div class="guide-step">
+                <h3><span class="guide-step-num">5</span> Código ejemplo ESP32 (Arduino)</h3>
+                <div class="code-block" data-base>const char* API_BASE = "{{BASE}}";
+const char* DEVICE_KEY = "dev_tu_api_key";
+
+// Despertar Render antes de usar la API
+bool wakeServer() {
+  HTTPClient http;
+  http.begin(String(API_BASE) + "/v1/status");
+  http.setTimeout(60000);  // 60 seg — Render puede tardar al despertar
+  int code = http.GET();
+  http.end();
+  return code == 200;
+}
+
+// Llamar al inicio del loop o antes de processCard():
+wakeServer();
+delay(500);</div>
+              </div>
+
+              <div class="guide-step">
+                <h3>Errores comunes</h3>
+                <ul>
+                  <li><strong>Timeout / no responde</strong> → El servidor duerme. Llama <code>/v1/status</code> primero y usa <code>setTimeout(60000)</code>.</li>
+                  <li><strong>invalid_device_key</strong> → API Key incorrecta. Revisa en Dispositivos.</li>
+                  <li><strong>insufficient_balance</strong> → Cliente sin saldo. Recarga desde el panel.</li>
+                  <li><strong>uid_required</strong> → Envía el UID de la tarjeta en el JSON.</li>
+                </ul>
+              </div>
             </div>
           </div>
         </section>

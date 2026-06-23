@@ -625,6 +625,92 @@ tr:hover td { background: rgba(255, 255, 255, 0.02); }
   border-color: rgba(6,182,212,0.3);
 }
 
+.guide-intro {
+  background: linear-gradient(135deg, rgba(6,182,212,0.08), rgba(59,130,246,0.05));
+  border: 1px solid rgba(6, 182, 212, 0.25);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.guide-intro h3 { font-size: 1rem; margin-bottom: 0.5rem; }
+.guide-intro p { color: var(--muted); font-size: 0.9rem; }
+
+.guide-tip {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 10px;
+  padding: 1rem 1.15rem;
+  margin: 1rem 0;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+.guide-tip strong { color: var(--warning); }
+
+.guide-step {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.guide-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--cyan);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border-radius: 8px;
+  margin-right: 0.6rem;
+}
+
+.guide-step h3 {
+  display: flex;
+  align-items: center;
+  font-size: 0.95rem;
+  margin-bottom: 0.65rem;
+}
+
+.guide-step p, .guide-step li {
+  color: var(--muted);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.guide-step ul {
+  margin: 0.5rem 0 0.75rem 1.25rem;
+}
+
+.guide-step ul li { margin-bottom: 0.35rem; }
+
+.guide-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.35rem;
+}
+
+.guide-test-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+}
+
+.guide-test-result {
+  font-size: 0.85rem;
+  color: var(--success);
+  font-family: monospace;
+}
+
 .overlay-backdrop {
   display: none;
   position: fixed;

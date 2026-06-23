@@ -491,6 +491,32 @@ function updateApiGuide() {
   });
 }
 
+async function testWakeServer() {
+  const el = document.getElementById("wake-test-result");
+  el.textContent = "Despertando servidor... (puede tardar ~60 s)";
+  el.style.color = "var(--warning)";
+  const t0 = Date.now();
+  try {
+    const res = await fetch(API + "/v1/status");
+    const data = await res.json();
+    const sec = ((Date.now() - t0) / 1000).toFixed(1);
+    if (data.status === "ok") {
+      el.textContent = `✓ status: ok — respondió en ${sec}s`;
+      el.style.color = "var(--success)";
+      toast(`Servidor despierto (${sec}s)`);
+    } else {
+      el.textContent = "Respuesta inesperada: " + JSON.stringify(data);
+      el.style.color = "var(--danger)";
+    }
+  } catch (err) {
+    el.textContent = "Error: " + err.message;
+    el.style.color = "var(--danger)";
+    toast("No se pudo conectar. ¿Render dormido?", "error");
+  }
+}
+
+document.getElementById("btn-test-wake").addEventListener("click", testWakeServer);
+
 document.querySelectorAll(".modal-overlay").forEach((m) => {
   m.addEventListener("click", (e) => {
     if (e.target === m) closeModal(m.id);
