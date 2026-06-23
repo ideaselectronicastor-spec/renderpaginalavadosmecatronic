@@ -1,1 +1,18 @@
 
+{
+  "name": "sistema-lavado-rfid-test",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Prueba de despliegue rápido en Render",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
+}
