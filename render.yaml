@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: lavado-api
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: lavado-db
+          property: connectionString
+
+databases:
+  - name: lavado-db
+    plan: free
