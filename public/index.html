@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel Admin — Lavado RFID</title>
+  <link rel="stylesheet" href="/admin.css" />
+</head>
+<body>
+  <header>
+    <h1>🧺 Sistema Lavado RFID</h1>
+    <span class="badge">Panel Admin · Sin login</span>
+  </header>
+
+  <nav>
+    <button data-tab="dashboard" class="active">Inicio</button>
+    <button data-tab="users">Usuarios</button>
+    <button data-tab="transactions">Transacciones</button>
+    <button data-tab="devices">Dispositivos</button>
+    <button data-tab="settings">Configuración</button>
+    <button data-tab="api">Guía API</button>
+  </nav>
+
+  <main>
+    <!-- Dashboard -->
+    <section id="panel-dashboard" class="panel active">
+      <div class="stats">
+        <div class="stat-card">
+          <div class="label">Usuarios</div>
+          <div class="value" id="stat-users">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Saldo total</div>
+          <div class="value" id="stat-balance">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Transacciones</div>
+          <div class="value" id="stat-txs">—</div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Últimos movimientos</h2>
+        <div class="table-wrap">
+          <table id="recent-txs">
+            <thead>
+              <tr><th>Fecha</th><th>Usuario</th><th>Monto</th><th>Descripción</th><th>Tipo</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Usuarios -->
+    <section id="panel-users" class="panel">
+      <div class="card">
+        <h2>Nuevo usuario</h2>
+        <form id="form-user">
+          <div class="form-row">
+            <div>
+              <label>UID tarjeta RFID</label>
+              <input name="rfidUid" placeholder="A1B2C3D4" required />
+            </div>
+            <div>
+              <label>Nombre</label>
+              <input name="name" placeholder="Juan Pérez" required />
+            </div>
+            <div>
+              <label>Saldo inicial</label>
+              <input name="balance" type="number" step="0.01" value="0" min="0" />
+            </div>
+            <div>
+              <label>Estado</label>
+              <select name="status">
+                <option value="active">Activo</option>
+                <option value="inactive">Inactivo</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Crear usuario</button>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Usuarios registrados</h2>
+        <div class="table-wrap">
+          <table id="users-table">
+            <thead>
+              <tr><th>UID</th><th>Nombre</th><th>Saldo</th><th>Estado</th><th>Acciones</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Transacciones -->
+    <section id="panel-transactions" class="panel">
+      <div class="card">
+        <h2>Historial de transacciones</h2>
+        <div class="table-wrap">
+          <table id="txs-table">
+            <thead>
+              <tr><th>Fecha</th><th>UID</th><th>Usuario</th><th>Tipo</th><th>Monto</th><th>Saldo final</th><th>Descripción</th><th>Origen</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dispositivos -->
+    <section id="panel-devices" class="panel">
+      <div class="card">
+        <h2>Nuevo dispositivo ESP32</h2>
+        <form id="form-device" class="form-row" style="align-items:end">
+          <div>
+            <label>Nombre</label>
+            <input id="device-name" placeholder="Lavadora 1" required />
+          </div>
+          <button type="submit" class="btn btn-primary">Generar API Key</button>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Dispositivos</h2>
+        <div class="table-wrap">
+          <table id="devices-table">
+            <thead>
+              <tr><th>Nombre</th><th>API Key</th><th>Estado</th><th>Última conexión</th><th></th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Configuración -->
+    <section id="panel-settings" class="panel">
+      <div class="card">
+        <h2>Configuración general</h2>
+        <form id="form-settings">
+          <div class="form-row">
+            <div>
+              <label>Cobro por lavado ($)</label>
+              <input id="set-charge" type="number" step="0.01" min="0" required />
+            </div>
+            <div>
+              <label>Moneda</label>
+              <select id="set-currency">
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="COP">COP</option>
+                <option value="MXN">MXN</option>
+              </select>
+            </div>
+            <div>
+              <label>Saldo mínimo</label>
+              <input id="set-min" type="number" step="0.01" min="0" required />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Guía API -->
+    <section id="panel-api" class="panel">
+      <div class="card">
+        <h2>Guía de la API</h2>
+        <p style="color:var(--muted);margin-bottom:1.5rem">
+          Base URL: <strong class="mono" data-base>{{BASE}}</strong>
+        </p>
+
+        <div class="api-endpoint">
+          <h3><span class="method method-get">GET</span> /health</h3>
+          <p>Verifica que el servicio esté activo.</p>
+          <div class="code-block" data-base>curl {{BASE}}/health</div>
+        </div>
+
+        <div class="api-endpoint">
+          <h3><span class="method method-post">POST</span> /v1/check</h3>
+          <p>Consulta una tarjeta RFID. Requiere header <code>X-Device-Key</code>.</p>
+          <div class="code-block" data-base>curl -X POST {{BASE}}/v1/check \
+  -H "Content-Type: application/json" \
+  -H "X-Device-Key: dev_tu_api_key" \
+  -d '{"uid": "A1B2C3D4"}'</div>
+        </div>
+
+        <div class="api-endpoint">
+          <h3><span class="method method-post">POST</span> /v1/charge</h3>
+          <p>Cobra saldo al usuario. Requiere header <code>X-Device-Key</code>.</p>
+          <div class="code-block" data-base>curl -X POST {{BASE}}/v1/charge \
+  -H "Content-Type: application/json" \
+  -H "X-Device-Key: dev_tu_api_key" \
+  -d '{"uid": "A1B2C3D4", "amount": 5}'</div>
+        </div>
+
+        <div class="api-endpoint">
+          <h3><span class="method method-get">GET</span> /api/users</h3>
+          <p>Lista todos los usuarios.</p>
+        </div>
+
+        <div class="api-endpoint">
+          <h3><span class="method method-post">POST</span> /api/users</h3>
+          <p>Crea un usuario nuevo.</p>
+          <div class="code-block" data-base>curl -X POST {{BASE}}/api/users \
+  -H "Content-Type: application/json" \
+  -d '{"rfidUid": "A1B2C3D4", "name": "Juan", "balance": 20}'</div>
+        </div>
+
+        <div class="api-endpoint">
+          <h3><span class="method method-post">POST</span> /api/users/:id/recharge</h3>
+          <p>Recarga saldo a un usuario.</p>
+          <div class="code-block" data-base>curl -X POST {{BASE}}/api/users/1/recharge \
+  -H "Content-Type: application/json" \
+  -d '{"amount": 10}'</div>
+        </div>
+
+        <div class="api-endpoint">
+          <h3><span class="method method-get">GET</span> /api/transactions</h3>
+          <p>Historial de movimientos (últimos 200).</p>
+        </div>
+
+        <div class="api-endpoint">
+          <h3><span class="method method-get">GET</span> /api/devices</h3>
+          <p>Lista dispositivos ESP32 y sus API keys.</p>
+        </div>
+
+        <div class="api-endpoint">
+          <h3><span class="method method-post">POST</span> /api/devices</h3>
+          <p>Registra un nuevo dispositivo ESP32.</p>
+        </div>
+
+        <div class="api-endpoint">
+          <h3><span class="method method-get">GET</span> /api/settings</h3>
+          <p>Obtiene configuración (cobro, moneda, saldo mínimo).</p>
+        </div>
+
+        <div class="api-endpoint">
+          <h3><span class="method method-patch">PATCH</span> /api/settings</h3>
+          <p>Actualiza configuración.</p>
+        </div>
+
+        <h2 style="margin-top:2rem;margin-bottom:0.75rem">Código ESP32</h2>
+        <div class="code-block" data-base>const char* API_BASE = "{{BASE}}";
+const char* DEVICE_KEY = "dev_tu_api_key";</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal recarga -->
+  <div id="modal-recharge" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:50">
+    <div class="card" style="width:min(400px,90vw);margin:0">
+      <h2>Recargar — <span id="recharge-name"></span></h2>
+      <form id="form-recharge">
+        <input type="hidden" id="recharge-id" />
+        <label>Monto a recargar</label>
+        <input id="recharge-amount" type="number" step="0.01" min="0.01" required style="margin:0.5rem 0 1rem" />
+        <div style="display:flex;gap:0.5rem">
+          <button type="submit" class="btn btn-primary">Recargar</button>
+          <button type="button" class="btn btn-secondary" onclick="closeRecharge()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/admin.js"></script>
+</body>
+</html>
