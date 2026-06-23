@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const crypto = require("crypto");
+const path = require("path");
 const { query, initDb } = require("./db");
 
 const app = express();
@@ -319,7 +320,16 @@ app.post("/api/devices", async (req, res) => {
   }
 });
 
+// ── Panel admin (HTML estático) ──
+
+const PUBLIC = path.join(__dirname, "public");
+app.use(express.static(PUBLIC));
+
 app.get("/", (_req, res) => {
+  res.sendFile(path.join(PUBLIC, "index.html"));
+});
+
+app.get("/api-info", (_req, res) => {
   res.json({
     success: true,
     message: "API Sistema Lavado RFID",

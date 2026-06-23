@@ -7,9 +7,13 @@ API REST + base de datos PostgreSQL. **Sin Firebase, sin login.**
 Sube **solo estos** (el resto no hace falta):
 
 ```
-├── index.js          ← Servidor API
+├── index.js          ← Servidor API + panel admin
 ├── db.js             ← Conexión PostgreSQL
 ├── package.json
+├── public/           ← Panel de control (HTML)
+│   ├── index.html
+│   ├── admin.css
+│   └── admin.js
 ├── render.yaml       ← Config Render (API + base de datos)
 ├── .gitignore
 ├── .env.example
@@ -33,7 +37,20 @@ Sube **solo estos** (el resto no hace falta):
    - Start: `npm start`
    - Variable: `DATABASE_URL` = Internal Database URL de PostgreSQL
 
-3. Cuando arranque, en los **logs** verás la API Key del ESP32 inicial
+3. Cuando arranque, abre tu URL → verás el **panel de administración**
+
+## Panel de control
+
+Abre la URL de Render en el navegador (ej. `https://tu-app.onrender.com`):
+
+- **Inicio** — resumen y últimos movimientos
+- **Usuarios** — crear y recargar saldo
+- **Transacciones** — historial
+- **Dispositivos** — API keys para ESP32
+- **Configuración** — cobro por lavado, moneda
+- **Guía API** — documentación con ejemplos
+
+Sin login por ahora (cualquiera con la URL puede entrar).
 
 ## Endpoints ESP32
 
