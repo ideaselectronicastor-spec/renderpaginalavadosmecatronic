@@ -3,266 +3,296 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Panel Admin — Lavado RFID</title>
+  <title>Mecatronic Car Wash — Panel Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/admin.css" />
 </head>
 <body>
-  <header>
-    <h1>🧺 Sistema Lavado RFID</h1>
-    <span class="badge">Panel Admin · Sin login</span>
-  </header>
+  <div class="app">
+    <div class="overlay-backdrop" id="sidebar-backdrop"></div>
 
-  <nav>
-    <button data-tab="dashboard" class="active">Inicio</button>
-    <button data-tab="users">Usuarios</button>
-    <button data-tab="transactions">Transacciones</button>
-    <button data-tab="devices">Dispositivos</button>
-    <button data-tab="settings">Configuración</button>
-    <button data-tab="api">Guía API</button>
-  </nav>
-
-  <main>
-    <!-- Dashboard -->
-    <section id="panel-dashboard" class="panel active">
-      <div class="stats">
-        <div class="stat-card">
-          <div class="label">Usuarios</div>
-          <div class="value" id="stat-users">—</div>
-        </div>
-        <div class="stat-card">
-          <div class="label">Saldo total</div>
-          <div class="value" id="stat-balance">—</div>
-        </div>
-        <div class="stat-card">
-          <div class="label">Transacciones</div>
-          <div class="value" id="stat-txs">—</div>
-        </div>
-      </div>
-      <div class="card">
-        <h2>Últimos movimientos</h2>
-        <div class="table-wrap">
-          <table id="recent-txs">
-            <thead>
-              <tr><th>Fecha</th><th>Usuario</th><th>Monto</th><th>Descripción</th><th>Tipo</th></tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- Usuarios -->
-    <section id="panel-users" class="panel">
-      <div class="card">
-        <h2>Nuevo usuario</h2>
-        <form id="form-user">
-          <div class="form-row">
-            <div>
-              <label>UID tarjeta RFID</label>
-              <input name="rfidUid" placeholder="A1B2C3D4" required />
-            </div>
-            <div>
-              <label>Nombre</label>
-              <input name="name" placeholder="Juan Pérez" required />
-            </div>
-            <div>
-              <label>Saldo inicial</label>
-              <input name="balance" type="number" step="0.01" value="0" min="0" />
-            </div>
-            <div>
-              <label>Estado</label>
-              <select name="status">
-                <option value="active">Activo</option>
-                <option value="inactive">Inactivo</option>
-              </select>
-            </div>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-logo">
+          <div class="brand-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17h14v-5H5v5zM7 12l1.5-4.5h7L17 12"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/></svg>
           </div>
-          <button type="submit" class="btn btn-primary">Crear usuario</button>
-        </form>
-      </div>
-      <div class="card">
-        <h2>Usuarios registrados</h2>
-        <div class="table-wrap">
-          <table id="users-table">
-            <thead>
-              <tr><th>UID</th><th>Nombre</th><th>Saldo</th><th>Estado</th><th>Acciones</th></tr>
-            </thead>
-            <tbody></tbody>
-          </table>
+          <div class="brand-text">
+            <h1>Mecatronic</h1>
+            <span>Car Wash RFID</span>
+          </div>
         </div>
       </div>
-    </section>
 
-    <!-- Transacciones -->
-    <section id="panel-transactions" class="panel">
-      <div class="card">
-        <h2>Historial de transacciones</h2>
-        <div class="table-wrap">
-          <table id="txs-table">
-            <thead>
-              <tr><th>Fecha</th><th>UID</th><th>Usuario</th><th>Tipo</th><th>Monto</th><th>Saldo final</th><th>Descripción</th><th>Origen</th></tr>
-            </thead>
-            <tbody></tbody>
-          </table>
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-tab="dashboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          Dashboard
+        </button>
+        <button class="nav-item" data-tab="clients">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Clientes
+        </button>
+        <button class="nav-item" data-tab="transactions">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          Transacciones
+        </button>
+        <button class="nav-item" data-tab="devices">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg>
+          Dispositivos
+        </button>
+        <button class="nav-item" data-tab="settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          Configuración
+        </button>
+        <button class="nav-item" data-tab="api">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+          Guía API
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="status-pill">
+          <span class="status-dot"></span>
+          Sistema en línea
         </div>
       </div>
-    </section>
+    </aside>
 
-    <!-- Dispositivos -->
-    <section id="panel-devices" class="panel">
-      <div class="card">
-        <h2>Nuevo dispositivo ESP32</h2>
-        <form id="form-device" class="form-row" style="align-items:end">
+    <div class="main-wrap">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="menu-btn" id="menu-btn" aria-label="Menú">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+          </button>
           <div>
-            <label>Nombre</label>
-            <input id="device-name" placeholder="Lavadora 1" required />
+            <div class="page-title" id="page-title">Dashboard</div>
+            <div class="page-subtitle" id="page-subtitle">Resumen del lavadero</div>
           </div>
-          <button type="submit" class="btn btn-primary">Generar API Key</button>
-        </form>
-      </div>
-      <div class="card">
-        <h2>Dispositivos</h2>
-        <div class="table-wrap">
-          <table id="devices-table">
-            <thead>
-              <tr><th>Nombre</th><th>API Key</th><th>Estado</th><th>Última conexión</th><th></th></tr>
-            </thead>
-            <tbody></tbody>
-          </table>
         </div>
-      </div>
-    </section>
+        <span class="topbar-badge">Acceso abierto · Sin login</span>
+      </header>
 
-    <!-- Configuración -->
-    <section id="panel-settings" class="panel">
-      <div class="card">
-        <h2>Configuración general</h2>
-        <form id="form-settings">
-          <div class="form-row">
-            <div>
-              <label>Cobro por lavado ($)</label>
-              <input id="set-charge" type="number" step="0.01" min="0" required />
-            </div>
-            <div>
-              <label>Moneda</label>
-              <select id="set-currency">
-                <option value="USD">USD</option>
-                <option value="EUR">EUR</option>
-                <option value="COP">COP</option>
-                <option value="MXN">MXN</option>
-              </select>
-            </div>
-            <div>
-              <label>Saldo mínimo</label>
-              <input id="set-min" type="number" step="0.01" min="0" required />
+      <main class="content">
+        <!-- Dashboard -->
+        <section id="panel-dashboard" class="panel active">
+          <div class="stats-grid" id="stats-grid"></div>
+          <div class="card">
+            <div class="card-header"><h2>Últimos lavados y recargas</h2></div>
+            <div class="card-body" style="padding:0">
+              <div class="table-wrap desktop-table">
+                <table id="recent-txs"><thead><tr><th>Fecha</th><th>Cliente</th><th>Placa</th><th>Monto</th><th>Tipo</th></tr></thead><tbody></tbody></table>
+              </div>
+              <div id="recent-cards" class="user-cards" style="padding:1rem"></div>
             </div>
           </div>
-          <button type="submit" class="btn btn-primary">Guardar</button>
-        </form>
-      </div>
-    </section>
+        </section>
 
-    <!-- Guía API -->
-    <section id="panel-api" class="panel">
-      <div class="card">
-        <h2>Guía de la API</h2>
-        <p style="color:var(--muted);margin-bottom:1.5rem">
-          Base URL: <strong class="mono" data-base>{{BASE}}</strong>
-        </p>
+        <!-- Clientes -->
+        <section id="panel-clients" class="panel">
+          <div class="card">
+            <div class="card-header">
+              <h2>Registrar cliente</h2>
+              <button class="btn btn-secondary btn-sm" onclick="toggleForm('client-form')">Mostrar / Ocultar</button>
+            </div>
+            <div class="card-body" id="client-form">
+              <form id="form-user">
+                <div class="form-grid">
+                  <div class="form-group"><label>Nombre del cliente *</label><input name="name" placeholder="Carlos Mendoza" required /></div>
+                  <div class="form-group"><label>Placa del vehículo</label><input name="plate" placeholder="ABC-123" style="text-transform:uppercase" /></div>
+                  <div class="form-group"><label>UID tarjeta RFID *</label><input name="rfidUid" placeholder="A1B2C3D4" required class="mono" /></div>
+                  <div class="form-group"><label>Teléfono</label><input name="phone" placeholder="+57 300 123 4567" /></div>
+                  <div class="form-group"><label>Saldo inicial</label><input name="balance" type="number" step="0.01" value="0" min="0" /></div>
+                  <div class="form-group"><label>Estado</label><select name="status"><option value="active">Activo</option><option value="inactive">Inactivo</option></select></div>
+                  <div class="form-group" style="grid-column:1/-1"><label>Notas</label><textarea name="notes" placeholder="Observaciones del cliente..."></textarea></div>
+                </div>
+                <div style="margin-top:1rem"><button type="submit" class="btn btn-primary">Registrar cliente</button></div>
+              </form>
+            </div>
+          </div>
 
-        <div class="api-endpoint">
-          <h3><span class="method method-get">GET</span> /health</h3>
-          <p>Verifica que el servicio esté activo.</p>
-          <div class="code-block" data-base>curl {{BASE}}/health</div>
-        </div>
+          <div class="card">
+            <div class="card-header">
+              <h2>Clientes registrados</h2>
+              <div class="search-bar">
+                <input id="search-clients" placeholder="Buscar por nombre, placa o UID..." />
+              </div>
+            </div>
+            <div class="card-body" style="padding:0">
+              <div class="table-wrap desktop-table">
+                <table id="users-table"><thead><tr><th>Cliente</th><th>Placa</th><th>UID RFID</th><th>Saldo</th><th>Estado</th><th>Acciones</th></tr></thead><tbody></tbody></table>
+              </div>
+              <div id="users-cards" class="user-cards" style="padding:1rem"></div>
+            </div>
+          </div>
+        </section>
 
-        <div class="api-endpoint">
-          <h3><span class="method method-post">POST</span> /v1/check</h3>
-          <p>Consulta una tarjeta RFID. Requiere header <code>X-Device-Key</code>.</p>
-          <div class="code-block" data-base>curl -X POST {{BASE}}/v1/check \
-  -H "Content-Type: application/json" \
-  -H "X-Device-Key: dev_tu_api_key" \
-  -d '{"uid": "A1B2C3D4"}'</div>
-        </div>
+        <!-- Transacciones -->
+        <section id="panel-transactions" class="panel">
+          <div class="card">
+            <div class="card-header">
+              <h2>Historial de transacciones</h2>
+              <div class="filter-tabs" id="tx-filters">
+                <button class="filter-tab active" data-filter="all">Todas</button>
+                <button class="filter-tab" data-filter="charge">Lavados</button>
+                <button class="filter-tab" data-filter="recharge">Recargas</button>
+              </div>
+            </div>
+            <div class="card-body" style="padding:0">
+              <div class="table-wrap">
+                <table id="txs-table"><thead><tr><th>Fecha</th><th>Cliente</th><th>Placa / UID</th><th>Tipo</th><th>Monto</th><th>Saldo final</th><th>Descripción</th></tr></thead><tbody></tbody></table>
+              </div>
+            </div>
+          </div>
+        </section>
 
-        <div class="api-endpoint">
-          <h3><span class="method method-post">POST</span> /v1/charge</h3>
-          <p>Cobra saldo al usuario. Requiere header <code>X-Device-Key</code>.</p>
-          <div class="code-block" data-base>curl -X POST {{BASE}}/v1/charge \
-  -H "Content-Type: application/json" \
-  -H "X-Device-Key: dev_tu_api_key" \
-  -d '{"uid": "A1B2C3D4", "amount": 5}'</div>
-        </div>
+        <!-- Dispositivos -->
+        <section id="panel-devices" class="panel">
+          <div class="card">
+            <div class="card-header"><h2>Agregar punto de lavado (ESP32)</h2></div>
+            <div class="card-body">
+              <form id="form-device" class="form-grid" style="align-items:end">
+                <div class="form-group"><label>Nombre del punto</label><input id="device-name" placeholder="Túnel 1 / Box A" required /></div>
+                <button type="submit" class="btn btn-primary">Generar API Key</button>
+              </form>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h2>Dispositivos conectados</h2></div>
+            <div class="card-body" style="padding:0">
+              <div class="table-wrap">
+                <table id="devices-table"><thead><tr><th>Punto</th><th>API Key</th><th>Estado</th><th>Última conexión</th><th>Acciones</th></tr></thead><tbody></tbody></table>
+              </div>
+            </div>
+          </div>
+        </section>
 
-        <div class="api-endpoint">
-          <h3><span class="method method-get">GET</span> /api/users</h3>
-          <p>Lista todos los usuarios.</p>
-        </div>
+        <!-- Configuración -->
+        <section id="panel-settings" class="panel">
+          <div class="card">
+            <div class="card-header"><h2>Configuración del lavadero</h2></div>
+            <div class="card-body">
+              <form id="form-settings">
+                <div class="form-grid">
+                  <div class="form-group"><label>Precio por lavado</label><input id="set-charge" type="number" step="0.01" min="0" required /></div>
+                  <div class="form-group"><label>Moneda</label><select id="set-currency"><option value="USD">USD</option><option value="COP">COP</option><option value="MXN">MXN</option><option value="EUR">EUR</option></select></div>
+                  <div class="form-group"><label>Saldo mínimo para lavar</label><input id="set-min" type="number" step="0.01" min="0" required /></div>
+                </div>
+                <p style="color:var(--muted);font-size:0.85rem;margin:1rem 0">El ESP32 cobra este monto automáticamente al detectar la tarjeta.</p>
+                <button type="submit" class="btn btn-primary">Guardar configuración</button>
+              </form>
+            </div>
+          </div>
+        </section>
 
-        <div class="api-endpoint">
-          <h3><span class="method method-post">POST</span> /api/users</h3>
-          <p>Crea un usuario nuevo.</p>
-          <div class="code-block" data-base>curl -X POST {{BASE}}/api/users \
-  -H "Content-Type: application/json" \
-  -d '{"rfidUid": "A1B2C3D4", "name": "Juan", "balance": 20}'</div>
-        </div>
+        <!-- Guía API -->
+        <section id="panel-api" class="panel">
+          <div class="card">
+            <div class="card-header"><h2>Documentación API — ESP32</h2></div>
+            <div class="card-body">
+              <p style="color:var(--muted);margin-bottom:1.5rem">Base URL: <strong class="mono" data-base>{{BASE}}</strong></p>
 
-        <div class="api-endpoint">
-          <h3><span class="method method-post">POST</span> /api/users/:id/recharge</h3>
-          <p>Recarga saldo a un usuario.</p>
-          <div class="code-block" data-base>curl -X POST {{BASE}}/api/users/1/recharge \
-  -H "Content-Type: application/json" \
-  -d '{"amount": 10}'</div>
-        </div>
+              <div class="api-endpoint"><h3><span class="method method-get">GET</span>/health</h3><p>Verifica que el servicio esté activo.</p></div>
 
-        <div class="api-endpoint">
-          <h3><span class="method method-get">GET</span> /api/transactions</h3>
-          <p>Historial de movimientos (últimos 200).</p>
-        </div>
+              <div class="api-endpoint">
+                <h3><span class="method method-post">POST</span>/v1/check</h3>
+                <p>Consulta tarjeta RFID antes del lavado. Header: <code>X-Device-Key</code></p>
+                <div class="code-block" data-base>{ "uid": "A1B2C3D4" }</div>
+              </div>
 
-        <div class="api-endpoint">
-          <h3><span class="method method-get">GET</span> /api/devices</h3>
-          <p>Lista dispositivos ESP32 y sus API keys.</p>
-        </div>
+              <div class="api-endpoint">
+                <h3><span class="method method-post">POST</span>/v1/charge</h3>
+                <p>Cobra el lavado al cliente. Header: <code>X-Device-Key</code></p>
+                <div class="code-block" data-base>{ "uid": "A1B2C3D4", "amount": 5 }</div>
+              </div>
 
-        <div class="api-endpoint">
-          <h3><span class="method method-post">POST</span> /api/devices</h3>
-          <p>Registra un nuevo dispositivo ESP32.</p>
-        </div>
+              <div class="api-endpoint"><h3><span class="method method-get">GET</span>/api/users</h3><p>Lista clientes.</p></div>
+              <div class="api-endpoint"><h3><span class="method method-post">POST</span>/api/users</h3><p>Crea cliente con placa, teléfono y notas.</p></div>
+              <div class="api-endpoint"><h3><span class="method method-patch">PATCH</span>/api/users/:id</h3><p>Edita datos del cliente.</p></div>
+              <div class="api-endpoint"><h3><span class="method method-post">POST</span>/api/users/:id/recharge</h3><p>Recarga saldo.</p></div>
 
-        <div class="api-endpoint">
-          <h3><span class="method method-get">GET</span> /api/settings</h3>
-          <p>Obtiene configuración (cobro, moneda, saldo mínimo).</p>
-        </div>
-
-        <div class="api-endpoint">
-          <h3><span class="method method-patch">PATCH</span> /api/settings</h3>
-          <p>Actualiza configuración.</p>
-        </div>
-
-        <h2 style="margin-top:2rem;margin-bottom:0.75rem">Código ESP32</h2>
-        <div class="code-block" data-base>const char* API_BASE = "{{BASE}}";
+              <h3 style="margin:1.5rem 0 0.75rem">Código ESP32</h3>
+              <div class="code-block" data-base>const char* API_BASE = "{{BASE}}";
 const char* DEVICE_KEY = "dev_tu_api_key";</div>
-      </div>
-    </section>
-  </main>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
 
   <!-- Modal recarga -->
-  <div id="modal-recharge" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:50">
-    <div class="card" style="width:min(400px,90vw);margin:0">
-      <h2>Recargar — <span id="recharge-name"></span></h2>
+  <div class="modal-overlay" id="modal-recharge">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Recargar saldo — <span id="recharge-name"></span></h3>
+        <button class="modal-close" onclick="closeModal('modal-recharge')">✕</button>
+      </div>
       <form id="form-recharge">
-        <input type="hidden" id="recharge-id" />
-        <label>Monto a recargar</label>
-        <input id="recharge-amount" type="number" step="0.01" min="0.01" required style="margin:0.5rem 0 1rem" />
-        <div style="display:flex;gap:0.5rem">
-          <button type="submit" class="btn btn-primary">Recargar</button>
-          <button type="button" class="btn btn-secondary" onclick="closeRecharge()">Cancelar</button>
+        <div class="modal-body">
+          <input type="hidden" id="recharge-id" />
+          <div class="form-group"><label>Monto a recargar</label><input id="recharge-amount" type="number" step="0.01" min="0.01" required /></div>
+          <div class="form-group" style="margin-top:0.75rem"><label>Descripción (opcional)</label><input id="recharge-desc" placeholder="Recarga en caja" /></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-recharge')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Confirmar recarga</button>
         </div>
       </form>
     </div>
   </div>
 
+  <!-- Modal editar -->
+  <div class="modal-overlay" id="modal-edit">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h3>Editar cliente</h3>
+        <button class="modal-close" onclick="closeModal('modal-edit')">✕</button>
+      </div>
+      <form id="form-edit">
+        <div class="modal-body">
+          <input type="hidden" id="edit-id" />
+          <div class="form-grid">
+            <div class="form-group"><label>Nombre</label><input id="edit-name" required /></div>
+            <div class="form-group"><label>Placa</label><input id="edit-plate" style="text-transform:uppercase" /></div>
+            <div class="form-group"><label>UID RFID</label><input id="edit-rfid" class="mono" required /></div>
+            <div class="form-group"><label>Teléfono</label><input id="edit-phone" /></div>
+            <div class="form-group"><label>Estado</label><select id="edit-status"><option value="active">Activo</option><option value="inactive">Inactivo</option></select></div>
+            <div class="form-group" style="grid-column:1/-1"><label>Notas</label><textarea id="edit-notes"></textarea></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" onclick="confirmDelete()">Eliminar</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-edit')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal editar dispositivo -->
+  <div class="modal-overlay" id="modal-device">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Editar dispositivo</h3>
+        <button class="modal-close" onclick="closeModal('modal-device')">✕</button>
+      </div>
+      <form id="form-edit-device">
+        <div class="modal-body">
+          <input type="hidden" id="device-edit-id" />
+          <div class="form-group"><label>Nombre del punto</label><input id="device-edit-name" required /></div>
+          <div class="form-group" style="margin-top:0.75rem"><label>Estado</label><select id="device-edit-active"><option value="true">Activo</option><option value="false">Inactivo</option></select></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-device')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toasts"></div>
   <script src="/admin.js"></script>
 </body>
 </html>
