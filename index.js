@@ -212,26 +212,117 @@ app.get("/api/users", async (_req, res) => {
   }
 });
 
+app.get("/api/users/:id", async (req, res) => {
+  const userId = Number(req.params.id);
+  try {
+    const { rows } = await query("SELECT * FROM users WHERE id = $1", [userId]);
+    if (!rows[0]) return res.status(404).json({ success: false, error: "user_not_found" });
+    const txRes = await query(
+      "SELECT * FROM transactions WHERE user_id = $1 ORDER BY created_at DESC LIMIT 20",
+      [userId]
+    );
+    res.json({ success: true, user: rows[0], transactions: txRes.rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: "internal_error" });
+  }
+});
+
 app.post("/api/users", async (req, res) => {
   const rfidUid = normalizeUid(req.body?.rfidUid);
   const name = String(req.body?.name || "").trim();
   const balance = Number(req.body?.balance ?? 0);
   const status = req.body?.status || "active";
+  const phone = String(req.body?.phone || "").trim() || null;
+  const plate = String(req.body?.plate || "").trim().toUpperCase() || null;
+  const notes = String(req.body?.notes || "").trim() || null;
   if (!rfidUid || !name) {
     return res.status(400).json({ success: false, error: "rfid_uid_and_name_required" });
   }
   try {
     const { rows } = await query(
-      `INSERT INTO users (rfid_uid, name, balance, status)
-       VALUES ($1, $2, $3, $4)
+      `INSERT INTO users (rfid_uid, name, balance, status, phone, plate, notes)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING *`,
-      [rfidUid, name, balance, status]
+      [rfidUid, name, balance, status, phone, plate, notes]
     );
     res.status(201).json({ success: true, user: rows[0] });
   } catch (err) {
     if (err.code === "23505") {
       return res.status(409).json({ success: false, error: "rfid_uid_exists" });
     }
+    console.error(err);
+    res.status(500).json({ success: false, error: "internal_error" });
+  }
+});
+
+app.patch("/api/users/:id", async (req, res) => {
+  const userId = Number(req.params.id);
+  const body = req.body || {};
+  try {
+    const current = await query("SELECT * FROM users WHERE id = $1", [userId]);
+    if (!current.rows[0]) {
+      return res.status(404).json({ success: false, error: "user_not_found" });
+    }
+    const fields = [];
+    const values = [];
+    let idx = 1;
+
+    if (body.name !== undefined) {
+      fields.push(`name = $${idx++}`);
+      values.push(String(body.name).trim());
+    }
+    if (body.rfidUid !== undefined) {
+      fields.push(`rfid_uid = $${idx++}`);
+      values.push(normalizeUid(body.rfidUid));
+    }
+    if (body.status !== undefined) {
+      fields.push(`status = $${idx++}`);
+      values.push(body.status);
+    }
+    if (body.phone !== undefined) {
+      fields.push(`phone = $${idx++}`);
+      values.push(String(body.phone).trim() || null);
+    }
+    if (body.plate !== undefined) {
+      fields.push(`plate = $${idx++}`);
+      values.push(String(body.plate).trim().toUpperCase() || null);
+    }
+    if (body.notes !== undefined) {
+      fields.push(`notes = $${idx++}`);
+      values.push(String(body.notes).trim() || null);
+    }
+
+    if (!fields.length) {
+      return res.status(400).json({ success: false, error: "no_fields_to_update" });
+    }
+
+    fields.push("updated_at = NOW()");
+    values.push(userId);
+
+    const { rows } = await query(
+      `UPDATE users SET ${fields.join(", ")} WHERE id = $${idx} RETURNING *`,
+      values
+    );
+    res.json({ success: true, user: rows[0] });
+  } catch (err) {
+    if (err.code === "23505") {
+      return res.status(409).json({ success: false, error: "rfid_uid_exists" });
+    }
+    console.error(err);
+    res.status(500).json({ success: false, error: "internal_error" });
+  }
+});
+
+app.delete("/api/users/:id", async (req, res) => {
+  const userId = Number(req.params.id);
+  try {
+    const result = await query("DELETE FROM users WHERE id = $1 RETURNING id", [userId]);
+    if (!result.rows[0]) {
+      return res.status(404).json({ success: false, error: "user_not_found" });
+    }
+    res.json({ success: true, deleted: userId });
+  } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, error: "internal_error" });
   }
@@ -320,6 +411,57 @@ app.post("/api/devices", async (req, res) => {
   }
 });
 
+app.patch("/api/devices/:id", async (req, res) => {
+  const deviceId = Number(req.params.id);
+  const { name, active } = req.body || {};
+  try {
+    const { rows } = await query(
+      `UPDATE devices SET
+        name = COALESCE($1, name),
+        active = COALESCE($2, active)
+       WHERE id = $3
+       RETURNING *`,
+      [name ? String(name).trim() : null, active !== undefined ? Boolean(active) : null, deviceId]
+    );
+    if (!rows[0]) return res.status(404).json({ success: false, error: "device_not_found" });
+    res.json({ success: true, device: rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: "internal_error" });
+  }
+});
+
+app.get("/api/stats", async (_req, res) => {
+  try {
+    const [users, settings, txsToday, chargesTotal] = await Promise.all([
+      query("SELECT COUNT(*)::int AS total, COUNT(*) FILTER (WHERE status='active')::int AS active, COALESCE(SUM(balance),0) AS balance FROM users"),
+      query("SELECT * FROM settings WHERE id = 1"),
+      query(`SELECT COUNT(*)::int AS count, COALESCE(SUM(amount) FILTER (WHERE type='charge'),0) AS charges, COALESCE(SUM(amount) FILTER (WHERE type='recharge'),0) AS recharges FROM transactions WHERE created_at >= CURRENT_DATE`),
+      query("SELECT COALESCE(SUM(amount),0) AS total FROM transactions WHERE type='charge'"),
+    ]);
+    const devices = await query("SELECT COUNT(*)::int AS total, COUNT(*) FILTER (WHERE active=true)::int AS active FROM devices");
+    res.json({
+      success: true,
+      stats: {
+        usersTotal: users.rows[0].total,
+        usersActive: users.rows[0].active,
+        totalBalance: Number(users.rows[0].balance),
+        devicesTotal: devices.rows[0].total,
+        devicesActive: devices.rows[0].active,
+        txsToday: txsToday.rows[0].count,
+        chargesToday: Number(txsToday.rows[0].charges),
+        rechargesToday: Number(txsToday.rows[0].recharges),
+        totalRevenue: Number(chargesTotal.rows[0].total),
+        currency: settings.rows[0]?.currency || "USD",
+        defaultCharge: Number(settings.rows[0]?.default_charge_amount ?? 5),
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: "internal_error" });
+  }
+});
+
 // ── Panel admin (HTML estático) ──
 
 const PUBLIC = path.join(__dirname, "public");
@@ -337,12 +479,17 @@ app.get("/api-info", (_req, res) => {
       health: "GET /health",
       esp32: ["POST /v1/check", "POST /v1/charge"],
       admin: [
+        "GET /api/stats",
         "GET /api/users",
+        "GET /api/users/:id",
         "POST /api/users",
+        "PATCH /api/users/:id",
+        "DELETE /api/users/:id",
         "POST /api/users/:id/recharge",
         "GET /api/transactions",
         "GET /api/devices",
         "POST /api/devices",
+        "PATCH /api/devices/:id",
         "GET /api/settings",
         "PATCH /api/settings",
       ],

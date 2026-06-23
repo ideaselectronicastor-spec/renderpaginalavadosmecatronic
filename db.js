@@ -54,6 +54,10 @@ async function initDb() {
       currency VARCHAR(10) NOT NULL DEFAULT 'USD',
       min_balance NUMERIC(10,2) NOT NULL DEFAULT 0
     );
+
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS phone VARCHAR(50);
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS plate VARCHAR(20);
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS notes TEXT;
   `);
 
   const settings = await query("SELECT id FROM settings WHERE id = 1");
